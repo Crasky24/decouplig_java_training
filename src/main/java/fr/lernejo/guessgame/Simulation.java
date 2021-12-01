@@ -2,7 +2,6 @@ package fr.lernejo.guessgame;
 
 import fr.lernejo.logger.Logger;
 import fr.lernejo.logger.LoggerFactory;
-import java.security.SecureRandom;
 
 public class Simulation {
 
@@ -12,14 +11,11 @@ public class Simulation {
 
     public Simulation(Player player) {
         this.player = player;
-        initialize(numberToGuess);
-        loopUntilPlayerSucceed();
     }
 
     public void initialize(long numberToGuess) {
 
-        SecureRandom random = new SecureRandom();
-        this.numberToGuess =  random.nextInt(100);;
+        this.numberToGuess = numberToGuess;
     }
 
     /**
@@ -27,29 +23,40 @@ public class Simulation {
      */
     private boolean nextRound() {
 
-        logger.log("Choisir un nombre : ");
-
         long a = player.askNextGuess();
         if(a == numberToGuess) {
             return true;
         }
-        if(a > numberToGuess){
-            logger.log("Nombre trop grand !\n");
+
+        if(a < numberToGuess){
+            player.respond(true);
         }
         else{
-            logger.log("Nombre trop petit !\n");
+            player.respond(false);
         }
 
         return false;
     }
 
-    public void loopUntilPlayerSucceed() {
+    public void loopUntilPlayerSucceed(long iterationMax) {
         boolean vie = false;
+        long temps = System.currentTimeMillis();
+        int nbIteration = 0;
 
-        while(!vie)
+        while(!vie && nbIteration < iterationMax)
         {
             vie = nextRound();
+            nbIteration++;
         }
-        logger.log("Nombre trouvé !\n C'était le "+numberToGuess);
+
+        if(nbIteration < iterationMax){
+            logger.log("Nombre trouve !\n C'etait le "+numberToGuess);
+            temps = System.currentTimeMillis() - temps;
+            logger.log("\n Temps pour trouver : "+temps);
+        }
+        else{
+            logger.log("Le nombre max d'iteration est atteind. Le nombre etait le : "+numberToGuess);
+        }
+
     }
 }
